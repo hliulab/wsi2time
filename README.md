@@ -1,18 +1,14 @@
-# HistCode
-Source code and data for
-"Contrast learning-based neural network to predict breast cancer gene expression from whole slide images"  
+# Annotation-free pathology images characterize tumor immune microenvironment in breast cancer by weakly supervised contrastive learning  
 
-This is a multi-stage model. 
+The model include three steps. 
 Firstly, [adversarial contrastive learning](https://arxiv.org/abs/2011.08435) and [Masked Autoencoders](https://arxiv.org/abs/2111.06377) is used to unsupervised extract tile-level features, 
 then the attention-pooling is used to aggregate tile-level features into slide-level features, 
 and finally it is used in the downstream tumor diagnosis and differential gene expression prediction tasks.
 
 
-# Now Updating
-
-## Seg and Tile
+## Segmentation and Split
 You can download your own wsi dataset to the directory slides, 
-then run data_processing/create_patches_fp.py to seg and tile wsis, 
+then run data_processing/create_patches_fp.py to segment and split wsis, 
 adjust the parameters according to your needs.  
 For example, you can use following command for segment and tile.  
 ``` shell
@@ -22,7 +18,7 @@ When you run this command, it will run in default parameter, if you want to run 
 Then the coordinate files will be saved to ```tile_results/patches``` 
 and the mask files that show contours of slides will be saved to ```tile_results/masks```.
 
-## Train Contrast Learning Model and Masked Autoencoders
+## Training Contrastive learning model and masked autoencoders
 Run train/train_adco.py to train contrast learning model on tiles,
 you should write Adco/ops/argparser.py to configure the data source
 and the save address and ADCO related parameters firstly.
@@ -40,7 +36,7 @@ python train_mae.py --csv_path ../dataset_csv/sample_data.csv --save_path ../MOD
 ``` 
 
 
-## Extract Tile-Level Features
+## Extracting Tile-Level Features
 Run data_processing/extract_features_fp.py to extract the tile-level features.
 For example, you can use following command for extracting features.  
 ``` shell
@@ -49,7 +45,7 @@ python extract_features_fp.py --data_h5_dir ../tile_results --data_slide_dir ../
 The above command will use the trained ADCO model in ```model_path``` to extract tile features in ```data_slide_dir```
 and save the features to ```feat_dir```. 
 
-## Train TIME Regression Model
+## Training TIME Regression Model
 Run train/train_att_TIME.py to perform downstream classification task. For example:  
 ``` shell
 python train_att_TIME.py --feature_path ../FEATURES --train_csv_path xxx.csv --val_csv_path xxx.csv
