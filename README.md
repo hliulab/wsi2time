@@ -1,15 +1,13 @@
 # Annotation-free pathology images characterize tumor immune microenvironment in breast cancer by weakly supervised contrastive learning  
 
-The model include three steps. 
 Firstly, [adversarial contrastive learning](https://arxiv.org/abs/2011.08435) and [Masked Autoencoders](https://arxiv.org/abs/2111.06377) is used to unsupervised extract tile-level features, 
 then the attention-pooling is used to aggregate tile-level features into slide-level features, 
 and finally it is used in the downstream tumor diagnosis and differential gene expression prediction tasks.
 
 
-## Segmentation and Split
+## Segmentation and Patching
 You can download your own wsi dataset to the directory slides, 
-then run data_processing/create_patches_fp.py to segment and split wsis, 
-adjust the parameters according to your needs.  
+then run data_processing/create_patches_fp.py to segment and split WSIs,  adjust the parameters according to your needs.  
 For example, you can use following command for segment and tile.  
 ``` shell
 python create_patches_fp.py --source ../slides/TCGA-BRCA --data_type tcga_BRCA --save_dir ../tile_results --patch --seg
@@ -18,7 +16,7 @@ When you run this command, it will run in default parameter, if you want to run 
 Then the coordinate files will be saved to ```tile_results/patches``` 
 and the mask files that show contours of slides will be saved to ```tile_results/masks```.
 
-## Training Contrastive learning model and masked autoencoders
+## Training Contrastive learning model (AdCo) and masked autoencoder (MAE)
 Run train/train_adco.py to train contrast learning model on tiles,
 you should write Adco/ops/argparser.py to configure the data source
 and the save address and ADCO related parameters firstly.
@@ -29,7 +27,7 @@ For example, you can use following command for training ADCO model with default 
 python train_adco.py --csv_path ../dataset_csv/sample_data.csv --save_path ../MODELS --data_h5_dir ../tile_result --data_slide_dir ../slides/TCGA-LUNG --data_type tcga_lung
 ```  
 
-Run train/train_mae.py to train contrast learning model on tiles,
+Run train/train_mae.py to train contrastive learning model on millions of tiles,
 you need to prepare a CSV file similar to dataset_csv/sample_data.csv,
 ``` shell
 python train_mae.py --csv_path ../dataset_csv/sample_data.csv --save_path ../MODELS --data_h5_dir ../tile_result --data_slide_dir ../slides/TCGA-LUNG --data_type tcga_lung
@@ -46,14 +44,14 @@ The above command will use the trained ADCO model in ```model_path``` to extract
 and save the features to ```feat_dir```. 
 
 ## Training TIME Regression Model
-Run train/train_att_TIME.py to perform downstream classification task. For example:  
+Run train/train_att_TIME.py to perform downstream regression task. For example:  
 ``` shell
 python train_att_TIME.py --feature_path ../FEATURES --train_csv_path xxx.csv --val_csv_path xxx.csv
 ```
-The above command will use the feature file in ```data_root_dir``` to train the classification model, and then output the test results to ```results_dir```.
+The above command will use the feature file in ```data_root_dir``` to train the regression model, and then output the test results to ```results_dir```.
 User needs to divide the data set into training set, verification set and test set in advance and put them under dataset_csv/tumor, such as:  
 
-## Train Classification Model
+## Training Classification Model
 
 Run train/train_tumor.py to perform downstream classification task. For example:  
 ``` shell
